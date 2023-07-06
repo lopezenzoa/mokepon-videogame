@@ -1,106 +1,110 @@
-const express = require("express")
-const cors = require("cors")
+const express = require("express");
+const cors = require("cors");
 
-const app = express()
+const app = express();
 
-app.use(express.static('public'))
-app.use(cors())
-app.use(express.json())
+app.use(express.static("public"));
+app.use(cors());
+app.use(express.json());
 
-const jugadores = []
+const players = [];
 
-class Jugador {
+class Player {
   constructor(id) {
-    this.id = id
+    this.id = id;
   }
 
-  asignarMokepon(mokepon) {
-    this.mokepon = mokepon
+  asignPet(pet) {
+    this.pet = pet;
   }
 
-  actualizarPosicion(x, y) {
-    this.x = x
-    this.y = y
+  updatePosition(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
-  asignarAtaques(ataques) {
-    this.ataques = ataques
+  asignAttacks(attacks) {
+    this.attacks = attacks;
   }
 }
 
 class Mokepon {
-  constructor(nombre) {
-    this.nombre = nombre
+  constructor(name) {
+    this.name = name;
   }
 }
 
-app.get("/unirse", (req, res) => {
-  const id = `${Math.random()}`
+app.get("/join", (req, res) => {
+  const id = `${Math.random()}`;
 
-  const jugador = new Jugador(id)
+  const player = new Player(id);
 
-  jugadores.push(jugador)
+  players.push(player);
 
-  res.setHeader("Access-Control-Allow-Origin", "*")
-  
-  res.send(id)
-})
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.send(id);
+});
 
-app.post("/mokepon/:jugadorId", (req, res) => {
-  const jugadorId = req.params.jugadorId || ""
-  const nombre = req.body.mokepon || ""
-  const mokepon = new Mokepon(nombre)
-  
-  const jugadorIndex = jugadores.findIndex((jugador) => jugadorId === jugador.id)
+app.post("/mokepon/:playerID", (req, res) => {
+  const playerID = req.params.playerID || "";
+  const name = req.body.mokepon || "";
+  const mokepon = new Mokepon(name);
 
-  if (jugadorIndex >= 0) {
-    jugadores[jugadorIndex].asignarMokepon(mokepon)
-  }
-  
-  console.log(jugadores)
-  console.log(jugadorId)
-  res.end()
-})
+  const playerIndex = players.findIndex(
+    (player) => playerID === player.id
+  );
 
-app.post("/mokepon/:jugadorId/posicion", (req, res) => {
-  const jugadorId = req.params.jugadorId || ""
-  const x = req.body.x || 0
-  const y = req.body.y || 0
-
-  const jugadorIndex = jugadores.findIndex((jugador) => jugadorId === jugador.id)
-
-  if (jugadorIndex >= 0) {
-    jugadores[jugadorIndex].actualizarPosicion(x, y)
+  if (playerIndex >= 0) {
+    players[playerIndex].asignPet(mokepon);
   }
 
-  const enemigos = jugadores.filter((jugador) => jugadorId !== jugador.id)
+  res.end();
+});
+
+app.post("/mokepon/:playerID/position", (req, res) => {
+  const playerID = req.params.playerID || "";
+  const x = req.body.x || 0;
+  const y = req.body.y || 0;
+
+  const playerIndex = players.findIndex(
+    (player) => playerID === player.id
+  );
+
+  if (playerIndex >= 0) {
+    players[playerIndex].updatePosition(x, y);
+  }
+
+  const enemies = players.filter((player) => playerID !== player.id);
 
   res.send({
-    enemigos
-  })
-})
+    enemies,
+  });
+});
 
-app.post("/mokepon/:jugadorId/ataques", (req, res) => {
-  const jugadorId = req.params.jugadorId || ""
-  const ataques = req.body.ataques || []
-  
-  const jugadorIndex = jugadores.findIndex((jugador) => jugadorId === jugador.id)
+app.post("/mokepon/:playerID/attacks", (req, res) => {
+  const playerID = req.params.playerID || "";
+  const attacks = req.body.attacks || [];
 
-  if (jugadorIndex >= 0) {
-    jugadores[jugadorIndex].asignarAtaques(ataques)
+  const playerIndex = players.findIndex(
+    (playerIndex) => playerID === playerIndex.id
+  );
+
+  if (playerIndex >= 0) {
+    players[playerIndex].asignAttacks(attacks);
   }
 
-  res.end()
-})
+  res.end();
+});
 
-app.get("/mokepon/:jugadorId/ataques", (req, res) => {
-  const jugadorId = req.params.jugadorId || ""
-  const jugador = jugadores.find((jugador) => jugador.id === jugadorId)
+app.get("/mokepon/:playerID/attacks", (req, res) => {
+  const playerID = req.params.playerID || "";
+  const playerIndex = players.find((playerIndex) => playerIndex.id === playerID);
+
   res.send({
-    ataques: jugador.ataques || []
-  })
-})
+    attacks: playerIndex.attacks || [],
+  });
+});
 
 app.listen(8080, () => {
-  console.log("Servidor funcionando")
-})
+  console.log("Server running at port 8080");
+});
